@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { C, CLASS_COLORS, FACTION_COLORS, SLOTS } from "./constants/colors";
 import { EU_REALMS } from "./constants/realms";
+import { CLASS_GUIDES } from "./constants/guides"; 
 import { fetchCharacterProfile } from "./api/blizzard";
 
 import { Panel, PanelHeader } from "./components/UI/Panel";
@@ -70,26 +71,26 @@ export default function WoWLookup() {
   return (
     <div style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", background: C.bg, minHeight: "100vh", color: C.text, fontSize: 13 }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: ${C.bg}; }
         ::-webkit-scrollbar-thumb { background: ${C.border}; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: ${C.borderLight}; }
         ::placeholder { color: ${C.textDim}; }
-        .search-input {
+        .search-input-top {
           background: ${C.bgAlt}; border: 1px solid ${C.border}; border-radius: 3px;
           padding: 8px 12px; color: ${C.text}; font-family: inherit; font-size: 13px;
           outline: none; transition: border-color 0.15s;
         }
-        .search-input:focus { border-color: ${C.accent}; }
-        .search-btn {
+        .search-input-top:focus { border-color: ${C.accent}; }
+        .search-btn-top {
           background: ${C.accent}; color: #fff; border: none; border-radius: 3px;
           padding: 8px 20px; font-family: inherit; font-size: 13px; font-weight: 600;
           cursor: pointer; transition: opacity 0.15s; white-space: nowrap;
         }
-        .search-btn:hover { opacity: 0.85; }
-        .search-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .search-btn-top:hover { opacity: 0.85; }
+        .search-btn-top:disabled { opacity: 0.4; cursor: not-allowed; }
         .tab { background: none; border: none; border-bottom: 2px solid transparent; color: ${C.textMuted}; font-family: inherit; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 10px 16px; cursor: pointer; transition: color 0.15s, border-color 0.15s; }
         .tab:hover { color: ${C.text}; }
         .tab.active { color: ${C.accent}; border-bottom-color: ${C.accent}; }
@@ -101,7 +102,6 @@ export default function WoWLookup() {
         .spinner { animation: spin 0.7s linear infinite; }
       `}</style>
 
-      {/* Top Navigation */}
       <div style={{ background: C.header, borderBottom: `1px solid ${C.border}`, padding: "0 20px", display: "flex", alignItems: "center", height: 44, gap: 24 }}>
         <div style={{ fontWeight: 700, fontSize: 15, color: "#fff", letterSpacing: "-0.01em" }}>
           <span style={{ color: C.accent }}>⚔</span> AzerothLens
@@ -111,48 +111,292 @@ export default function WoWLookup() {
         <div style={{ fontSize: 11, color: C.textDim }}>Powered by Battle.net API</div>
       </div>
 
-      {/* Search Layout Section */}
-      <div style={{ background: C.bgAlt, borderBottom: `1px solid ${C.border}`, padding: "10px 20px" }}>
-        <div style={{ maxWidth: 860, margin: "0 auto", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-          <input className="search-input" placeholder="Character name" value={charName}
-            onChange={e => setCharName(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && handleSearch()}
-            style={{ width: 200 }} />
-          <div style={{ position: "relative" }}>
-            <input className="search-input" placeholder="Realm" value={realmInput}
-              style={{ width: 220 }}
-              onChange={e => { setRealmInput(e.target.value); setRealm(""); setShowSuggestions(true); }}
-              onFocus={() => setShowSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              onKeyDown={e => e.key === "Enter" && realm && handleSearch()} />
-            {showSuggestions && suggestions.length > 0 && (
-              <div style={{ position: "absolute", top: "100%", left: 0, width: 220, background: C.panel, border: `1px solid ${C.border}`, borderTop: "none", borderRadius: "0 0 3px 3px", zIndex: 100, maxHeight: 240, overflowY: "auto" }}>
-                {suggestions.map(r => (
-                  <div key={r} className="suggestion" onMouseDown={() => { setRealm(r); setRealmInput(r); setSuggestions([]); }}>{r}</div>
-                ))}
-              </div>
-            )}
+      {character && (
+        <div style={{ background: C.bgAlt, borderBottom: `1px solid ${C.border}`, padding: "10px 20px" }} className="fade-in">
+          <div style={{ maxWidth: 860, margin: "0 auto", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+            <input className="search-input-top" placeholder="Character name" value={charName}
+              onChange={e => setCharName(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && handleSearch()}
+              style={{ width: 200 }} />
+            <div style={{ position: "relative" }}>
+              <input className="search-input-top" placeholder="Realm" value={realmInput}
+                style={{ width: 220 }}
+                onChange={e => { setRealmInput(e.target.value); setRealm(""); setShowSuggestions(true); }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                onKeyDown={e => e.key === "Enter" && realm && handleSearch()} />
+              {showSuggestions && suggestions.length > 0 && (
+                <div style={{ position: "absolute", top: "100%", left: 0, width: 220, background: C.panel, border: `1px solid ${C.border}`, borderTop: "none", borderRadius: "0 0 3px 3px", zIndex: 100, maxHeight: 240, overflowY: "auto" }}>
+                  {suggestions.map(r => (
+                    <div key={r} className="suggestion" onMouseDown={() => { setRealm(r); setRealmInput(r); setSuggestions([]); }}>{r}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button className="search-btn-top" onClick={handleSearch} disabled={!charName.trim() || !realm || loading}>
+              {loading ? "Searching..." : "Search"}
+            </button>
+            {realm && !loading && <span style={{ fontSize: 11, color: C.textDim }}>✓ {realm} · EU</span>}
           </div>
-          <button className="search-btn" onClick={handleSearch} disabled={!charName.trim() || !realm || loading}>
-            {loading ? "Searching..." : "Search"}
-          </button>
-          {realm && !loading && <span style={{ fontSize: 11, color: C.textDim }}>✓ {realm} · EU</span>}
         </div>
-      </div>
+      )}
 
       <div style={{ maxWidth: 1060, margin: "0 auto", padding: "20px 16px 60px" }}>
         {error && <div style={{ background: "#1a0808", border: "1px solid #4a1515", borderRadius: 4, padding: "10px 14px", marginBottom: 16, fontSize: 12, color: "#e07070" }}>⚠ {error}</div>}
 
         {!character && !loading && !error && (
-          <div style={{ textAlign: "center", padding: "80px 20px" }}>
-            <div style={{ fontSize: 40, marginBottom: 16 }}>⚔</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>WoW Character Lookup</div>
-            <div style={{ fontSize: 13, color: C.textMuted, marginBottom: 32 }}>Enter a character name and EU realm above to get started.</div>
+          <div className="fade-in" style={{ 
+            display: "flex", 
+            flexDirection: "column", 
+            alignItems: "center", 
+            justifyContent: "center", 
+            padding: "80px 20px 120px 20px",
+            position: "relative"
+          }}>
+            <div style={{
+              position: "absolute",
+              width: "600px",
+              height: "600px",
+              background: "radial-gradient(circle, rgba(141, 62, 230, 0.15) 0%, transparent 65%)",
+              top: "20%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 0,
+              pointerEvents: "none"
+            }} />
+
+            <h1 style={{ 
+              position: "relative",
+              zIndex: 1,
+              fontSize: "36px", 
+              fontWeight: 900, 
+              color: "#ffffff", 
+              marginBottom: "12px",
+              letterSpacing: "-0.03em",
+              textAlign: "center"
+            }}>
+              ANALYZE YOUR AZEROTH LEGEND
+            </h1>
+            
+            <p style={{ 
+              position: "relative",
+              zIndex: 1,
+              fontSize: "14px", 
+              color: "#7e8ba3", 
+              marginBottom: "44px",
+              textAlign: "center",
+              maxWidth: "480px",
+              lineHeight: "1.6"
+            }}>
+              Inspect premium item levels, attributes, and dynamic mythic or raid metrics inside a streamlined tactical dashboard station.
+            </p>
+
+            <div style={{ 
+              position: "relative",
+              zIndex: 1,
+              display: "flex", 
+              alignItems: "center", 
+              background: "rgba(13, 17, 26, 0.65)", 
+              padding: "10px", 
+              borderRadius: "14px", 
+              border: "1px solid rgba(255, 255, 255, 0.07)",
+              backdropFilter: "blur(18px)",
+              WebkitBackdropFilter: "blur(18px)",
+              boxShadow: "0 24px 60px rgba(0, 0, 0, 0.45)",
+              width: "100%",
+              maxWidth: "680px",
+              marginBottom: "20px"
+            }}>
+              
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "4px 12px" }}>
+                <label style={{ fontSize: "10px", fontWeight: 700, color: "#4d5870", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "4px" }}>
+                  Character
+                </label>
+                <input 
+                  placeholder="Enter name..." 
+                  value={charName}
+                  onChange={e => setCharName(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleSearch()}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "#ffffff",
+                    fontFamily: "inherit",
+                    fontSize: "15px",
+                    fontWeight: 500,
+                    outline: "none",
+                    width: "100%"
+                  }} 
+                />
+              </div>
+
+              <div style={{ width: "1px", height: "32px", background: "rgba(255, 255, 255, 0.08)", margin: "0 8px" }} />
+
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "4px 12px", position: "relative" }}>
+                <label style={{ fontSize: "10px", fontWeight: 700, color: "#4d5870", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "4px" }}>
+                  Realm
+                </label>
+                <input 
+                  placeholder="Select EU Realm..." 
+                  value={realmInput}
+                  onChange={e => { setRealmInput(e.target.value); setRealm(""); setShowSuggestions(true); }}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                  onKeyDown={e => e.key === "Enter" && realm && handleSearch()}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "#ffffff",
+                    fontFamily: "inherit",
+                    fontSize: "15px",
+                    fontWeight: 500,
+                    outline: "none",
+                    width: "100%"
+                  }} 
+                />
+                
+                {showSuggestions && suggestions.length > 0 && (
+                  <div style={{ 
+                    position: "absolute", 
+                    top: "calc(100% + 18px)", 
+                    left: "-12px", 
+                    right: "-12px", 
+                    background: "#0c0f16", 
+                    border: "1px solid rgba(255, 255, 255, 0.08)", 
+                    borderRadius: "10px", 
+                    zIndex: 100, 
+                    maxHeight: "220px", 
+                    overflowY: "auto",
+                    boxShadow: "0 16px 40px rgba(0,0,0,0.7)",
+                    padding: "6px"
+                  }}>
+                    {suggestions.map(r => (
+                      <div 
+                        key={r} 
+                        className="suggestion" 
+                        onMouseDown={() => { setRealm(r); setRealmInput(r); setSuggestions([]); }}
+                        style={{
+                          padding: "10px 14px",
+                          borderRadius: "6px",
+                          fontSize: "13px",
+                          cursor: "pointer"
+                        }}
+                      >
+                        {r}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <button 
+                onClick={handleSearch} 
+                disabled={!charName.trim() || !realm || loading}
+                style={{
+                  background: "linear-gradient(135deg, #8d3ee6 0%, #00b4d8 100%)",
+                  color: "#ffffff", 
+                  border: "none", 
+                  borderRadius: "10px",
+                  padding: "14px 28px", 
+                  fontFamily: "inherit", 
+                  fontSize: "14px", 
+                  fontWeight: 600,
+                  cursor: "pointer", 
+                  transition: "opacity 0.2s ease",
+                  boxShadow: "0 4px 20px rgba(141, 62, 230, 0.3)",
+                  opacity: (!charName.trim() || !realm || loading) ? 0.35 : 1,
+                  alignSelf: "stretch",
+                  display: "flex",
+                  alignItems: "center"
+                }}
+              >
+                <span>{loading ? "Scanning..." : "Analyze"}</span>
+              </button>
+            </div>
+            
+            {realm && !loading && (
+              <span className="fade-in" style={{ fontSize: "12px", color: "#00b4d8", marginBottom: "20px", fontWeight: 500, letterSpacing: "0.02em" }}>
+                Target Confirmed: {realm} (EU Region)
+              </span>
+            )}
+
+            <div style={{ marginTop: "60px", width: "100%", maxWidth: "860px", position: "relative", zIndex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
+                <div style={{ height: "1px", flex: 1, background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.08))" }} />
+                <h2 style={{ fontSize: "11px", fontWeight: 700, color: "#4d5870", letterSpacing: "0.15em", textTransform: "uppercase" }}>
+                  Class & Specialization Build Indexes
+                </h2>
+                <div style={{ height: "1px", flex: 1, background: "linear-gradient(90deg, rgba(255,255,255,0.08), transparent)" }} />
+              </div>
+
+              <div style={{ 
+                display: "grid", 
+                gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", 
+                gap: "14px" 
+              }}>
+                {CLASS_GUIDES.map(c => (
+                  <div 
+                    key={c.class}
+                    style={{
+                      background: "rgba(17, 22, 34, 0.45)",
+                      border: "1px solid rgba(255, 255, 255, 0.04)",
+                      borderLeft: `3px solid ${c.color}`,
+                      borderRadius: "8px",
+                      padding: "16px",
+                      backdropFilter: "blur(10px)"
+                    }}
+                  >
+                    <div style={{ fontSize: "14px", fontWeight: 700, color: c.color, marginBottom: "10px", letterSpacing: "-0.01em" }}>
+                      {c.class}
+                    </div>
+
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                      {c.specs.map(spec => {
+                        const specSlug = spec.name.toLowerCase().replace(" ", "-");
+                        const targetUrl = `https://www.wowhead.com/guide/classes/${c.slug}/${specSlug}/overview-pve-${spec.role}`;
+                        
+                        return (
+                          <a 
+                            key={spec.name}
+                            href={targetUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: 500,
+                              color: "#7e8ba3",
+                              background: "rgba(255, 255, 255, 0.03)",
+                              border: "1px solid rgba(255, 255, 255, 0.05)",
+                              borderRadius: "4px",
+                              padding: "5px 10px",
+                              textDecoration: "none",
+                              transition: "all 0.15s ease"
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.color = "#ffffff";
+                              e.currentTarget.style.background = "rgba(255, 255, 255, 0.08)";
+                              e.currentTarget.style.borderColor = c.color;
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.color = "#7e8ba3";
+                              e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)";
+                              e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.05)";
+                            }}
+                          >
+                            {spec.name}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
         {loading && (
-          <div style={{ textAlign: "center", padding: "80px 0" }}>
+          <div style={{ textAling: "center", padding: "80px 0" }}>
             <div className="spinner" style={{ width: 28, height: 28, border: `2px solid ${C.border}`, borderTopColor: C.accent, borderRadius: "50%", margin: "0 auto 16px" }} />
             <div style={{ fontSize: 12, color: C.textMuted }}>Fetching character data...</div>
           </div>
@@ -160,7 +404,6 @@ export default function WoWLookup() {
 
         {character && !loading && (
           <div className="fade-in">
-            {/* Profile banner header block */}
             <div style={{ display: "grid", gridTemplateColumns: art ? "1fr 240px" : "1fr", background: C.panel, border: `1px solid ${C.border}`, borderRadius: 4, overflow: "hidden", marginBottom: 16, borderLeft: `3px solid ${cc}` }}>
               <div style={{ padding: "20px 24px" }}>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 6, flexWrap: "wrap" }}>
@@ -193,14 +436,12 @@ export default function WoWLookup() {
               )}
             </div>
 
-            {/* Profile Navigation Tabs */}
             <div style={{ borderBottom: `1px solid ${C.border}`, marginBottom: 16, display: "flex" }}>
               {[["overview","Overview"],["gear","Equipment"],["stats","Statistics"]].map(([id, label]) => (
                 <button key={id} className={`tab ${tab === id ? "active" : ""}`} onClick={() => setTab(id)}>{label}</button>
               ))}
             </div>
 
-            {/* Tab Panes */}
             {tab === "overview" && (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
                 <Panel>
