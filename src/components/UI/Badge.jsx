@@ -1,6 +1,6 @@
 export function Badge({ children, color }) {
   return (
-    <span style={{ display: "inline-block", fontSize: 10, fontWeight: 700, color, background: color + "22", border: `1px solid ${color}44`, borderRadius: 2, padding: "2px 7px", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+    <span style={{ display: "inline-flex", alignItems: "center", fontSize: 10, fontWeight: 700, color, background: `${color}18`, border: `1px solid ${color}44`, borderRadius: 999, padding: "4px 9px", letterSpacing: "0.08em", textTransform: "uppercase", boxShadow: `0 0 0 1px ${color}12` }}>
       {children}
     </span>
   );

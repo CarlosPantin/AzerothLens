@@ -1,0 +1,18 @@
+:root {
+  color-scheme: dark;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #0e1015;
+  color: #c5cce0;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(74, 158, 255, 0.18), transparent 26%),
+    radial-gradient(circle at top right, rgba(141, 62, 230, 0.16), transparent 24%),
+    #0e1015;
+}
+
+* { box-sizing: border-box; }
+a { text-decoration: none; }
